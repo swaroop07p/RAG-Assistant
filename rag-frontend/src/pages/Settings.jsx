@@ -14,7 +14,7 @@ export const Settings = () => {
         <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">Manage your account preferences and application layout.</p>
       </div>
 
-      <div className="bg-white dark:bg-darkCard rounded-2xl border border-slate-200 dark:border-darkBorder shadow-sm overflow-hidden">
+      <div className="bg-white dark:bg-darkCard rounded-2xl border border-slate-300 dark:border-darkBorder shadow-sm overflow-hidden">
         
         {/* Profile Section */}
         <div className="p-6 border-b border-slate-200 dark:border-darkBorder">
@@ -66,7 +66,7 @@ export const Settings = () => {
           <div className="space-y-3">
             <button 
               onClick={logout}
-              className="w-full sm:w-auto px-5 py-2.5 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 text-sm font-semibold rounded-xl transition flex items-center justify-center gap-2"
+              className="w-full sm:w-auto px-5 py-2.5 bg-slate-300 hover:bg-slate-200 dark:bg-slate-600 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 text-sm font-semibold rounded-xl transition flex items-center justify-center gap-2"
             >
               <LogOut size={16} /> Sign Out of Account
             </button>

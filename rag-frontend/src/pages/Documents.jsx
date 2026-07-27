@@ -127,7 +127,7 @@ export const Documents = () => {
                 <div className="p-2.5 rounded-xl bg-red-50 dark:bg-red-500/10 text-red-600 dark:text-red-400">
                   <FileText size={24} />
                 </div>
-                <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition">
+                <div className="flex gap-1 group-hover:opacity-100 transition">
                   <button
                     onClick={() => setViewerDoc(doc)}
                     className="p-1.5 text-slate-400 hover:text-brand-600 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg"

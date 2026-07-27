@@ -6,6 +6,17 @@ from app.db.mongodb import db
 
 router = APIRouter()
 
+def deduplicate_results(results: list) -> list:
+    seen_texts = set()
+    deduped = []
+    for item in results:
+        # Deduplicate by the first 100 characters of the text to catch identical chunks from re-uploads
+        text_signature = item.text.strip()[:100].lower()
+        if text_signature not in seen_texts:
+            seen_texts.add(text_signature)
+            deduped.append(item)
+    return deduped
+
 @router.post("/semantic", response_model=SearchResponse)
 async def semantic_search(body: SearchRequest, current_user: dict = Depends(get_current_user)):
     results = VectorService.search_similar(
@@ -15,12 +26,12 @@ async def semantic_search(body: SearchRequest, current_user: dict = Depends(get_
         top_k=body.top_k
     )
     items = [SearchResultItem(**r) for r in results]
-    return SearchResponse(query=body.query, search_type="semantic", total_results=len(items), results=items)
+    clean_items = deduplicate_results(items)
+    return SearchResponse(query=body.query, search_type="semantic", total_results=len(clean_items), results=clean_items)
 
 
 @router.post("/keyword", response_model=SearchResponse)
 async def keyword_search(body: SearchRequest, current_user: dict = Depends(get_current_user)):
-    # MongoDB regex text search over stored document chunks metadata
     query_filter = {
         "user_id": current_user["_id"],
         "text": {"$regex": body.query, "$options": "i"}
@@ -33,24 +44,23 @@ async def keyword_search(body: SearchRequest, current_user: dict = Depends(get_c
     async for doc in cursor:
         items.append(SearchResultItem(
             document_id=doc["document_id"],
-            document_name=doc.get("document_name", "Unknown"),
+            document_name=doc.get("document_name", "Document"),
             page_number=doc["page_number"],
             chunk_id=doc["chunk_id"],
             text=doc["text"],
             score=1.0
         ))
-    return SearchResponse(query=body.query, search_type="keyword", total_results=len(items), results=items)
+    clean_items = deduplicate_results(items)
+    return SearchResponse(query=body.query, search_type="keyword", total_results=len(clean_items), results=clean_items)
 
 
 @router.post("/hybrid", response_model=SearchResponse)
 async def hybrid_search(body: SearchRequest, current_user: dict = Depends(get_current_user)):
-    # Combine Semantic & Keyword search results with deduplication
     semantic_res = VectorService.search_similar(current_user["_id"], body.query, body.document_ids, top_k=body.top_k)
     
     seen_chunks = {r["chunk_id"] for r in semantic_res}
     combined = list(semantic_res)
 
-    # Fetch additional keyword hits if top_k is not reached
     cursor = db.db.document_chunks.find({
         "user_id": current_user["_id"],
         "text": {"$regex": body.query, "$options": "i"}
@@ -60,12 +70,13 @@ async def hybrid_search(body: SearchRequest, current_user: dict = Depends(get_cu
         if doc["chunk_id"] not in seen_chunks:
             combined.append({
                 "document_id": doc["document_id"],
-                "document_name": doc.get("document_name", "Unknown"),
+                "document_name": doc.get("document_name", "Document"),
                 "page_number": doc["page_number"],
                 "chunk_id": doc["chunk_id"],
                 "text": doc["text"],
                 "score": 0.5
             })
 
-    items = [SearchResultItem(**r) for r in combined[:body.top_k]]
-    return SearchResponse(query=body.query, search_type="hybrid", total_results=len(items), results=items)
+    items = [SearchResultItem(**r) for r in combined]
+    clean_items = deduplicate_results(items)[:body.top_k]
+    return SearchResponse(query=body.query, search_type="hybrid", total_results=len(clean_items), results=clean_items)

@@ -29,6 +29,7 @@ class VectorService:
                     "document_id": str(doc_id),
                     "document_name": str(doc_name),
                     "page_number": int(chunk["page_number"]),
+                    "chunk_index": int(chunk["chunk_index"]),
                     "chunk_id": str(chunk["chunk_id"]),
                     "text": str(chunk["text"])
                 }
@@ -40,7 +41,7 @@ class VectorService:
         )
 
     @staticmethod
-    def search_similar(user_id: str, query: str, document_ids: List[str] = None, top_k: int = 5) -> List[Dict[str, Any]]:
+    def search_similar(user_id: str, query: str, document_ids: List[str] = None, top_k: int = 10) -> List[Dict[str, Any]]:
         qdrant = get_qdrant_client()
         query_vector = VectorService.generate_embeddings([query])[0]
 
@@ -68,6 +69,7 @@ class VectorService:
                 "document_id": payload.get("document_id", ""),
                 "document_name": payload.get("document_name", "Unknown Document"),
                 "page_number": payload.get("page_number", 1),
+                "chunk_index": payload.get("chunk_index", 0),
                 "chunk_id": payload.get("chunk_id", ""),
                 "text": payload.get("text", "")
             })

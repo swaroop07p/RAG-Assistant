@@ -7,11 +7,21 @@ import {
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import API from '../api/axios';
-import { Search } from 'lucide-react';
+import { Search,FileBox } from 'lucide-react';
+
+// Helper function to format bytes into KB, MB, or GB
+const formatBytes = (bytes, decimals = 2) => {
+  if (!bytes || bytes === 0) return '0 MB';
+  const k = 1024;
+  const dm = decimals < 0 ? 0 : decimals;
+  const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
+  const i = Math.floor(Math.log(bytes) / Math.log(k));
+  return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
+};
 
 export const Dashboard = () => {
   const { user } = useAuth();
-  const [stats, setStats] = useState({ docs: 0, chats: 0 });
+  const [stats, setStats] = useState({ docs: 0, chats: 0, totalStorage: '0 MB' });
   const [recentDocs, setRecentDocs] = useState([]);
 
   useEffect(() => {
@@ -23,7 +33,18 @@ export const Dashboard = () => {
         ]);
         
         const docs = docsRes.data || [];
-        setStats({ docs: docs.length, chats: chatsRes.data?.length || 0 });
+        
+        // Calculate total storage sum by checking common size property names (file_size, size, or file_bytes)
+        const totalBytes = docs.reduce((acc, doc) => {
+          const fileSize = doc.file_size_bytes || 0; // <-- Updated property name
+          return acc + fileSize;
+        }, 0);
+
+        setStats({ 
+          docs: docs.length, 
+          chats: chatsRes.data?.length || 0,
+          totalStorage: formatBytes(totalBytes)
+        });
         setRecentDocs(docs.slice(0, 3)); // Get top 3 recent docs
       } catch (error) {
         console.error("Failed to load dashboard data", error);
@@ -35,7 +56,7 @@ export const Dashboard = () => {
   const statCards = [
     { title: 'Total Documents', value: stats.docs, icon: FileText, color: 'text-blue-500', bg: 'bg-blue-100 dark:bg-blue-500/20' },
     { title: 'Chat Sessions', value: stats.chats, icon: MessageSquareText, color: 'text-emerald-500', bg: 'bg-emerald-100 dark:bg-emerald-500/20' },
-    { title: 'Storage Used', value: '1.2 GB', icon: HardDrive, color: 'text-amber-500', bg: 'bg-amber-100 dark:bg-amber-500/20' },
+    { title: 'Storage Used', value: stats.totalStorage, icon: HardDrive, color: 'text-amber-500', bg: 'bg-amber-100 dark:bg-amber-500/20' },
   ];
 
   return (
@@ -43,9 +64,10 @@ export const Dashboard = () => {
       {/* Welcome Section */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-100">
-            Welcome back, {user?.full_name?.split(' ')[0] || 'User'}! 👋
-          </h1>
+        <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2">
+  <span>Welcome back, {user?.full_name?.split(' ')[0] || 'User'}!</span>
+  <FileBox className="text-brand-500 drop-shadow-[0_0_8px_rgba(59,130,246,0.6)]" size={26} />
+</h1>
           <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
             Here is what's happening with your document intelligence today.
           </p>
@@ -93,7 +115,7 @@ export const Dashboard = () => {
           </div>
           <div className="space-y-3">
             {recentDocs.length > 0 ? recentDocs.map((doc) => (
-              <div key={doc.id} className="flex items-center justify-between p-3 rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800">
+              <div key={doc.id} className="flex items-center justify-between p-3 rounded-xl bg-slate-200 dark:bg-slate-700/50 border border-slate-100 dark:border-slate-800">
                 <div className="flex items-center gap-3 overflow-hidden">
                   <div className="p-2 rounded-lg bg-red-100 dark:bg-red-500/20 text-red-600 dark:text-red-400">
                     <FileText size={16} />
@@ -116,15 +138,15 @@ export const Dashboard = () => {
             <Activity size={18} className="text-brand-500" /> Quick Actions
           </h2>
           <div className="grid grid-cols-2 gap-3">
-            <Link to="/chat" className="p-4 rounded-xl bg-gradient-to-br from-brand-50 to-indigo-50 dark:from-brand-950/30 dark:to-indigo-950/30 border border-brand-100 dark:border-brand-900/50 hover:shadow-md transition group">
+            <Link to="/chat" className="p-4 rounded-xl bg-gradient-to-br from-brand-50 to-indigo-500 dark:from-brand-950/30 dark:to-indigo-500 border border-brand-100 dark:border-brand-900/50 hover:shadow-md transition group">
               <MessageSquareText size={24} className="text-brand-600 dark:text-brand-400 mb-2 group-hover:scale-110 transition-transform" />
               <h3 className="text-sm font-semibold text-slate-900 dark:text-slate-100">Ask a Question</h3>
-              <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">Query your entire library</p>
+              <p className="text-xs text-slate-700 dark:text-slate-900 mt-1">Query your entire library</p>
             </Link>
-            <Link to="/search" className="p-4 rounded-xl bg-gradient-to-br from-emerald-50 to-teal-50 dark:from-emerald-950/30 dark:to-teal-950/30 border border-emerald-100 dark:border-emerald-900/50 hover:shadow-md transition group">
+            <Link to="/search" className="p-4 rounded-xl bg-gradient-to-br from-emerald-50 to-teal-500 dark:from-emerald-950/30 dark:to-teal-500 border border-emerald-100 dark:border-emerald-900/50 hover:shadow-md transition group">
               <Search size={24} className="text-emerald-600 dark:text-emerald-400 mb-2 group-hover:scale-110 transition-transform" />
               <h3 className="text-sm font-semibold text-slate-900 dark:text-slate-100">Deep Search</h3>
-              <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">Find exact keywords</p>
+              <p className="text-xs text-slate-700 dark:text-slate-900 mt-1">Find exact keywords</p>
             </Link>
           </div>
         </div>

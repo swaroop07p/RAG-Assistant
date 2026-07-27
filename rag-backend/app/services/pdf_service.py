@@ -11,9 +11,9 @@ if settings.TESSERACT_CMD:
 
 class PDFService:
     @staticmethod
-    def process_and_chunk_pdf(pdf_bytes: bytes, chunk_size: int = 500, overlap: int = 50) -> Dict[str, Any]:
+    def process_and_chunk_pdf(pdf_bytes: bytes, chunk_size: int = 1000, overlap: int = 150) -> Dict[str, Any]:
         """
-        Extracts text (with OCR fallback for scanned pages) and splits into overlapping chunks.
+        Extracts text (with OCR fallback for scanned pages) and splits into larger overlapping chunks.
         """
         doc = fitz.open(stream=pdf_bytes, filetype="pdf")
         pages_text = []
@@ -22,7 +22,7 @@ class PDFService:
             page = doc[page_num]
             text = page.get_text("text").strip()
 
-            # Scanned document detection: if extracted text length is negligible, trigger OCR
+            # Scanned document detection: trigger OCR if text is minimal
             if len(text) < 30:
                 logger.info(f"Page {page_num + 1} appears scanned. Executing OCR...")
                 pix = page.get_pixmap()
@@ -31,7 +31,6 @@ class PDFService:
 
             pages_text.append({"page_number": page_num + 1, "text": text})
 
-        # Text Chunking Logic
         chunks = []
         chunk_counter = 0
 
@@ -51,7 +50,8 @@ class PDFService:
                 
                 chunk_counter += 1
                 chunks.append({
-                    "chunk_id": f"chunk_{p_num}_{chunk_counter}",
+                    "chunk_id": f"chunk_p{p_num}_idx{chunk_counter}",
+                    "chunk_index": chunk_counter,  # Sequential Index for Neighbor Fetching
                     "page_number": p_num,
                     "text": chunk_str
                 })

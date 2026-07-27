@@ -6,45 +6,54 @@ from app.db.mongodb import db
 from datetime import datetime
 from bson import ObjectId
 from typing import List
+import logging
 
+logger = logging.getLogger("rag_app")
 router = APIRouter()
 
 @router.post("/ask", response_model=ChatAnswerResponse)
 async def ask_question(body: AskQuestionRequest, current_user: dict = Depends(get_current_user)):
-    rag_res = await RAGService.generate_answer(
-        user_id=current_user["_id"],
-        question=body.question,
-        document_ids=body.document_ids
-    )
+    try:
+        rag_res = await RAGService.generate_answer(
+            user_id=str(current_user["_id"]),
+            question=body.question,
+            document_ids=body.document_ids
+        )
 
-    chat_id = body.chat_id
-    if not chat_id:
-        chat_doc = {
-            "user_id": current_user["_id"],
-            "title": body.question[:35] + "...",
-            "created_at": datetime.utcnow().isoformat(),
-            "updated_at": datetime.utcnow().isoformat()
+        chat_id = body.chat_id
+        if not chat_id:
+            chat_doc = {
+                "user_id": str(current_user["_id"]),
+                "title": body.question[:35] + "...",
+                "created_at": datetime.utcnow().isoformat(),
+                "updated_at": datetime.utcnow().isoformat()
+            }
+            res = await db.db.chats.insert_one(chat_doc)
+            chat_id = str(res.inserted_id)
+
+        message_doc = {
+            "chat_id": chat_id,
+            "user_id": str(current_user["_id"]),
+            "question": body.question,
+            "answer": rag_res["answer"],
+            "citations": rag_res["citations"],
+            "suggested_followups": rag_res["suggested_followups"],
+            "timestamp": datetime.utcnow().isoformat()
         }
-        res = await db.db.chats.insert_one(chat_doc)
-        chat_id = str(res.inserted_id)
+        await db.db.chat_messages.insert_one(message_doc)
 
-    message_doc = {
-        "chat_id": chat_id,
-        "user_id": current_user["_id"],
-        "question": body.question,
-        "answer": rag_res["answer"],
-        "citations": rag_res["citations"],
-        "timestamp": datetime.utcnow().isoformat()
-    }
-    await db.db.chat_messages.insert_one(message_doc)
+        return ChatAnswerResponse(
+            chat_id=chat_id,
+            question=body.question,
+            answer=rag_res["answer"],
+            citations=rag_res["citations"],
+            suggested_followups=rag_res["suggested_followups"]
+        )
+    except Exception as e:
+        logger.error(f"Chat error: {str(e)}", exc_info=True)
+        raise HTTPException(status_code=500, detail=f"Chat processing failed: {str(e)}")
 
-    return ChatAnswerResponse(
-        chat_id=chat_id,
-        question=body.question,
-        answer=rag_res["answer"],
-        citations=rag_res["citations"],
-        suggested_followups=rag_res["suggested_followups"]
-    )
+# ... keep the rest of your routes (sessions, delete, rename) as they are below ...
 
 @router.get("/sessions", response_model=List[ChatSessionResponse])
 async def get_chat_sessions(current_user: dict = Depends(get_current_user)):

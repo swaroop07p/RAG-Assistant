@@ -19,6 +19,39 @@ export const Analytics = () => {
     ]
   });
 
+  // useEffect(() => {
+  //   const fetchAnalytics = async () => {
+  //     try {
+  //       const [docsRes, chatsRes] = await Promise.all([
+  //         API.get('/documents/'),
+  //         API.get('/chat/sessions')
+  //       ]);
+        
+  //       const numDocs = docsRes.data.length || 0;
+  //       const chats = chatsRes.data || [];
+  //       const numChats = chats.length;
+
+  //       // Dynamically populate today's data based on actual chat count
+  //       const today = new Date().toLocaleDateString('en-US', { weekday: 'short' });
+  //       const updatedWeekly = data.weeklyUsage.map(day => {
+  //         if (day.name === today) {
+  //           return { ...day, queries: numChats, tokens: numChats * 150 }; // Estimating 150 tokens per chat for now
+  //         }
+  //         return day;
+  //       });
+
+  //       setData({
+  //         totalDocs: numDocs,
+  //         totalChats: numChats,
+  //         weeklyUsage: updatedWeekly
+  //       });
+  //     } catch (error) {
+  //       console.error("Failed to load analytics data", error);
+  //     }
+  //   };
+  //   fetchAnalytics();
+  // }, []);
+
   useEffect(() => {
     const fetchAnalytics = async () => {
       try {
@@ -31,14 +64,32 @@ export const Analytics = () => {
         const chats = chatsRes.data || [];
         const numChats = chats.length;
 
-        // Dynamically populate today's data based on actual chat count
-        const today = new Date().toLocaleDateString('en-US', { weekday: 'short' });
-        const updatedWeekly = data.weeklyUsage.map(day => {
-          if (day.name === today) {
-            return { ...day, queries: numChats, tokens: numChats * 150 }; // Estimating 150 tokens per chat for now
+        // Initialize a clean map for the week's counts
+        const countsMap = { Mon: 0, Tue: 0, Wed: 0, Thu: 0, Fri: 0, Sat: 0, Sun: 0 };
+
+        // Loop through actual chats and tally them by their respective day
+        chats.forEach(chat => {
+          // Adjust 'created_at' to match whatever property name your backend uses for chat dates
+          const chatDateStr = chat.created_at || chat.createdAt || chat.timestamp;
+          if (chatDateStr) {
+            const date = new Date(chatDateStr);
+            const dayName = date.toLocaleDateString('en-US', { weekday: 'short' }); // Returns 'Mon', 'Tue', etc.
+            if (countsMap.hasOwnProperty(dayName)) {
+              countsMap[dayName] += 1;
+            }
           }
-          return day;
         });
+
+        // Build the updated weekly usage array dynamically from real data
+        const updatedWeekly = [
+          { name: 'Mon', queries: countsMap.Mon, tokens: countsMap.Mon * 150 },
+          { name: 'Tue', queries: countsMap.Tue, tokens: countsMap.Tue * 150 },
+          { name: 'Wed', queries: countsMap.Wed, tokens: countsMap.Wed * 150 },
+          { name: 'Thu', queries: countsMap.Thu, tokens: countsMap.Thu * 150 },
+          { name: 'Fri', queries: countsMap.Fri, tokens: countsMap.Fri * 150 },
+          { name: 'Sat', queries: countsMap.Sat, tokens: countsMap.Sat * 150 },
+          { name: 'Sun', queries: countsMap.Sun, tokens: countsMap.Sun * 150 },
+        ];
 
         setData({
           totalDocs: numDocs,

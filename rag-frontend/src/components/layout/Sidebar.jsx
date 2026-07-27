@@ -77,7 +77,7 @@ export const Sidebar = ({ isOpen, onClose }) => {
         <div className="p-4 m-4 rounded-2xl bg-gradient-to-br from-indigo-900 via-brand-900 to-slate-900 text-white text-xs relative overflow-hidden">
           <Sparkles className="absolute right-2 bottom-2 text-brand-400 opacity-20" size={60} />
           <p className="font-semibold text-brand-300 flex items-center gap-1 mb-1">
-            <Sparkles size={12} /> Gemini 2.5 Flash
+            <Sparkles size={12} /> Gemini 3.6 Flash
           </p>
           <p className="text-slate-300 leading-relaxed">
             Zero data leakage. Contextually retrieval grounded answers.
