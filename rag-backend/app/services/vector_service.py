@@ -1,16 +1,24 @@
-from sentence_transformers import SentenceTransformer
+from google import genai
 from qdrant_client.http.models import PointStruct, Filter, FieldCondition, MatchValue, MatchAny, FilterSelector
 from app.db.qdrant import get_qdrant_client
 from app.core.config import settings
 from typing import List, Dict, Any
 import uuid
 
-model = SentenceTransformer('BAAI/bge-small-en-v1.5')
+# Use Gemini API client for embeddings (0 MB RAM footprint on server)
+client = genai.Client(api_key=settings.GEMINI_API_KEY)
 
 class VectorService:
     @staticmethod
     def generate_embeddings(texts: List[str]) -> List[List[float]]:
-        return model.encode(texts, convert_to_numpy=True).tolist()
+        embeddings = []
+        for text in texts:
+            response = client.models.embed_content(
+                model="text-embedding-004",
+                contents=text
+            )
+            embeddings.append(response.embedding.values)
+        return embeddings
 
     @staticmethod
     def store_chunks(user_id: str, doc_id: str, doc_name: str, chunks: List[Dict[str, Any]]):
@@ -29,7 +37,7 @@ class VectorService:
                     "document_id": str(doc_id),
                     "document_name": str(doc_name),
                     "page_number": int(chunk["page_number"]),
-                    "chunk_index": int(chunk["chunk_index"]),
+                    "chunk_index": int(chunk.get("chunk_index", 0)),
                     "chunk_id": str(chunk["chunk_id"]),
                     "text": str(chunk["text"])
                 }

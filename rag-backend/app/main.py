@@ -25,24 +25,24 @@ app = FastAPI(
 )
 
 # Enable CORS
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=[
-        "http://localhost:5173",       # Local Vite frontend
-        "https://your-frontend.vercel.app" # Production Vercel frontend
-    ],
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
-
 # app.add_middleware(
 #     CORSMiddleware,
-#     allow_origins=["*"],  # Set exact domain in production frontend
+#     allow_origins=[
+#         "http://localhost:5173",       # Local Vite frontend
+#         "https://your-frontend.vercel.app" # Production Vercel frontend
+#     ],
 #     allow_credentials=True,
 #     allow_methods=["*"],
 #     allow_headers=["*"],
 # )
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"], # Or replace "*" with "https://your-frontend.vercel.app" later
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 # Include Routers
 app.include_router(auth.router, prefix="/api/v1/auth", tags=["Authentication"])

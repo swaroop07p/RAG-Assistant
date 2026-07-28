@@ -21,7 +21,7 @@ def init_qdrant():
         logger.info(f"Creating Qdrant collection: {settings.QDRANT_COLLECTION_NAME}")
         qdrant_client.create_collection(
             collection_name=settings.QDRANT_COLLECTION_NAME,
-            vectors_config=VectorParams(size=384, distance=Distance.COSINE)
+            vectors_config=VectorParams(size=768, distance=Distance.COSINE) # <--- Changed size to 768
         )
 
     # Create payload indexes required by Qdrant Cloud for filtered search

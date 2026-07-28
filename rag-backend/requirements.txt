@@ -4,7 +4,6 @@ pydantic[email]==2.6.4
 pydantic-settings==2.2.1
 motor>=3.4.0
 qdrant-client==1.8.0
-sentence-transformers==2.5.1
 google-genai
 cloudinary==1.39.0
 pymupdf>=1.25.0
