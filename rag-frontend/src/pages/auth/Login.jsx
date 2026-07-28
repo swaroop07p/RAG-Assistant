@@ -78,12 +78,12 @@ export const Login = () => {
               <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider">
                 Password
               </label>
-              <Link 
+              {/* <Link 
                 to="/forgot-password" 
                 className="text-xs font-medium text-brand-600 dark:text-brand-400 hover:underline"
               >
                 Forgot password?
-              </Link>
+              </Link> */}
             </div>
             <div className="relative">
               <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" size={18} />

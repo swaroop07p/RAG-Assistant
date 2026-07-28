@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import API from '../api/axios';
 import toast from 'react-hot-toast';
+import { addNotification } from '../utils/notifications';
 
 const AuthContext = createContext();
 
@@ -40,6 +41,7 @@ export const AuthProvider = ({ children }) => {
     // Fetch user info
     const userRes = await API.get('/auth/me');
     setUser(userRes.data);
+    addNotification('Welcome Back!', 'You have successfully logged in.');
     toast.success('Successfully logged in!');
     return userRes.data;
   };
@@ -51,6 +53,7 @@ export const AuthProvider = ({ children }) => {
       password
     });
     toast.success('Registration successful! Please login.');
+    addNotification('Good Bye!', 'You have successfully logged out.');
   };
 
   const logout = () => {

@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { ClipLoader } from "react-spinners";
 import API from "../../api/axios";
 import toast from "react-hot-toast";
+import { addNotification } from "../../utils/notifications";
 
 export const DocumentUploadModal = ({ isOpen, onClose, onUploadSuccess }) => {
   const [file, setFile] = useState(null);
@@ -71,6 +72,7 @@ export const DocumentUploadModal = ({ isOpen, onClose, onUploadSuccess }) => {
       }
       
       toast.success('Document uploaded and processed successfully!');
+      addNotification('Document Processed', 'Your PDF has been successfully embedded.');
       onUploadSuccess();
       handleClose();
     } catch (error) {
