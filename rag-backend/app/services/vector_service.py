@@ -1,4 +1,5 @@
 from google import genai
+from google.genai import types  # <--- Add this import
 from qdrant_client.http.models import PointStruct, Filter, FieldCondition, MatchValue, MatchAny, FilterSelector
 from app.db.qdrant import get_qdrant_client
 from app.core.config import settings
@@ -13,14 +14,15 @@ class VectorService:
     def generate_embeddings(texts: List[str]) -> List[List[float]]:
         embeddings = []
         for text in texts:
-            # 1. Update the model name to the active Gemini model
             response = client.models.embed_content(
-                model="gemini-embedding-001", 
-                contents=text
+                model="gemini-embedding-001",
+                contents=text,
+                config=types.EmbedContentConfig(output_dimensionality=768) # <--- Force 768 dimensions here
             )
-            # 2. Extract the vector values safely from the new response structure
             embeddings.append(response.embeddings[0].values)
         return embeddings
+
+    # ... (keep the rest of the file exactly the same)
 
     @staticmethod
     def store_chunks(user_id: str, doc_id: str, doc_name: str, chunks: List[Dict[str, Any]]):
