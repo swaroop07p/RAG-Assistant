@@ -13,11 +13,13 @@ class VectorService:
     def generate_embeddings(texts: List[str]) -> List[List[float]]:
         embeddings = []
         for text in texts:
+            # 1. Update the model name to the active Gemini model
             response = client.models.embed_content(
-                model="text-embedding-004",
+                model="gemini-embedding-001", 
                 contents=text
             )
-            embeddings.append(response.embedding.values)
+            # 2. Extract the vector values safely from the new response structure
+            embeddings.append(response.embeddings[0].values)
         return embeddings
 
     @staticmethod
