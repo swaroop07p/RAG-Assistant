@@ -201,7 +201,7 @@ export const Chat = () => {
               initial={{ width: 0, opacity: 0 }}
               animate={{ width: 280, opacity: 1 }}
               exit={{ width: 0, opacity: 0 }}
-              className="absolute md:relative z-30 md:h-full h-[79vh] border-r rounded-xl border-slate-200 dark:border-darkBorder bg-slate-100 dark:bg-slate-900 flex flex-col shrink-0 overflow-hidden shadow-xl md:shadow-none"
+              className="absolute md:relative z-30 md:h-full h-[80vh] border-r rounded-xl border-slate-200 dark:border-darkBorder bg-slate-100 dark:bg-slate-900 flex flex-col shrink-0 overflow-hidden shadow-xl md:shadow-none"
             >
               <div className="p-4 border-b border-slate-200 dark:border-darkBorder">
                 <button
