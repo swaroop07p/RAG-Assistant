@@ -183,7 +183,7 @@ export const Chat = () => {
   };
 
   return (
-    <div className="flex md:h-[calc(100vh-8rem)] h-[calc(100vh-5rem)] bg-white dark:bg-darkCard rounded-2xl border border-slate-200 dark:border-darkBorder overflow-hidden shadow-sm">
+    <div className="flex md:h-[calc(100vh-8rem)] h-[calc(100vh-10rem)] bg-white dark:bg-darkCard rounded-2xl border border-slate-200 dark:border-darkBorder overflow-hidden shadow-sm">
       {/* Sidebar: Chat History */}
       <AnimatePresence initial={false}>
         {isHistoryOpen && (
