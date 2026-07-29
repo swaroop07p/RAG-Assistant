@@ -46,7 +46,7 @@ export const ChatInput = ({ onSend, disabled, onOpenDocSelector }) => {
         value={text}
         onChange={(e) => setText(e.target.value)}
         onKeyDown={handleKeyDown}
-        placeholder="Ask a question about your documents..."
+        placeholder="Ask a question about your documents.."
         disabled={disabled}
         className="w-full max-h-[150px] bg-transparent resize-none outline-none py-2.5 text-xs md:text-sm text-slate-900 dark:text-slate-100 placeholder-slate-400 custom-scrollbar"
         rows={1}

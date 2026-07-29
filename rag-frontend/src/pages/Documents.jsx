@@ -46,6 +46,7 @@ export const Documents = () => {
       await API.delete(`/documents/${id}`);
       setDocuments((docs) => docs.filter((doc) => doc.id !== id));
       toast.success("Document deleted successfully");
+      addNotification('Document Deleted', 'The document was deleted successfully.');
     } catch (error) {
       toast.error("Failed to delete document");
     }
@@ -62,7 +63,7 @@ export const Documents = () => {
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-100">
+          <h1 className="text-2xl font-bold bg-gradient-to-r from-brand-600 to-indigo-500 bg-clip-text text-transparent">
             Documents Library
           </h1>
           <p className="text-sm text-slate-500 dark:text-slate-400">

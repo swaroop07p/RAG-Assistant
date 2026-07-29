@@ -42,7 +42,7 @@ export const Sidebar = ({ isOpen, onClose }) => {
               <h1 className="font-bold text-base bg-gradient-to-r from-brand-600 to-indigo-500 bg-clip-text text-transparent">
                 DocuMind AI
               </h1>
-              <p className="text-[10px] text-slate-400 uppercase tracking-widest font-semibold">Enterprise RAG</p>
+              <p className="text-[10px] text-slate-400 uppercase tracking-widest font-semibold">RAG Workspace</p>
             </div>
           </div>
 
@@ -74,10 +74,10 @@ export const Sidebar = ({ isOpen, onClose }) => {
         </div>
 
         {/* Bottom Banner */}
-        <div className="p-4 m-4 rounded-2xl bg-gradient-to-br from-indigo-900 via-brand-900 to-slate-900 text-white text-xs relative overflow-hidden">
+        <div className="p-4 m-4  my-10 rounded-2xl bg-gradient-to-br from-indigo-900 via-brand-900 to-slate-900 text-white text-xs relative overflow-hidden">
           <Sparkles className="absolute right-2 bottom-2 text-brand-400 opacity-20" size={60} />
           <p className="font-semibold text-brand-300 flex items-center gap-1 mb-1">
-            <Sparkles size={12} /> Gemini 3.6 Flash
+            <Sparkles size={15} /> Gemini 3.6 Flash
           </p>
           <p className="text-slate-300 leading-relaxed">
             Zero data leakage. Contextually retrieval grounded answers.

@@ -16,7 +16,9 @@ export const MainLayout = ({ children }) => {
           onToggleSidebar={() => setIsSidebarOpen(!isSidebarOpen)} 
           isSidebarOpen={isSidebarOpen} 
         />
-        <main className="flex-1 overflow-y-auto p-4 sm:p-6 md:p-8">
+        
+        {/* Changed pt-16 to mt-16 so the scrollable box starts below the navbar */}
+        <main className="mt-16 flex-1 overflow-y-auto p-4 sm:p-6 md:p-8">
           {children}
         </main>
       </div>

@@ -10,6 +10,7 @@ export const DocumentUploadModal = ({ isOpen, onClose, onUploadSuccess }) => {
   const [file, setFile] = useState(null);
   const [isDragging, setIsDragging] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
+  const [uploadStage, setUploadStage] = useState(1); // 1: Initial, 2: After 20s, 3: After 35s
   const fileInputRef = useRef(null);
 
   const handleDragOver = (e) => {
@@ -38,6 +39,17 @@ export const DocumentUploadModal = ({ isOpen, onClose, onUploadSuccess }) => {
   const handleUpload = async () => {
     if (!file) return;
     setIsUploading(true);
+    setUploadStage(1); // Reset to first stage
+
+    // Timer 1: Switch to Stage 2 after 20 seconds
+    const timer1 = setTimeout(() => {
+      setUploadStage(2);
+    }, 20000);
+
+    // Timer 2: Switch to Stage 3 after 35 seconds (20s + 15s)
+    const timer2 = setTimeout(() => {
+      setUploadStage(3);
+    }, 35000);
     
     const formData = new FormData();
     formData.append('file', file);
@@ -46,8 +58,6 @@ export const DocumentUploadModal = ({ isOpen, onClose, onUploadSuccess }) => {
       const token = localStorage.getItem('token');
       const baseUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000/api/v1';
 
-      // Using native fetch bypasses the global Axios JSON headers entirely.
-      // Do NOT set Content-Type; the browser will automatically set it with the correct boundary.
       const response = await fetch(`${baseUrl}/documents/upload`, {
         method: 'POST',
         headers: {
@@ -56,8 +66,11 @@ export const DocumentUploadModal = ({ isOpen, onClose, onUploadSuccess }) => {
         body: formData
       });
 
+      // Clear both timers if the upload finishes early
+      clearTimeout(timer1);
+      clearTimeout(timer2);
+
       if (!response.ok) {
-        // Parse the error from FastAPI gracefully
         const errorData = await response.json().catch(() => ({}));
         let errorMessage = 'Failed to upload document.';
         
@@ -77,14 +90,18 @@ export const DocumentUploadModal = ({ isOpen, onClose, onUploadSuccess }) => {
       handleClose();
     } catch (error) {
       console.error("Upload Error:", error);
+      clearTimeout(timer1);
+      clearTimeout(timer2);
       toast.error(error.message || 'Failed to upload document due to a network error.');
     } finally {
       setIsUploading(false);
+      setUploadStage(1);
     }
   };
 
   const handleClose = () => {
     setFile(null);
+    setUploadStage(1);
     onClose();
   };
 
@@ -169,12 +186,25 @@ export const DocumentUploadModal = ({ isOpen, onClose, onUploadSuccess }) => {
               </div>
             )}
 
+            {/* Dynamic Loading Animation Messages based on 3 stages */}
             {isUploading && (
               <div className="mt-6 flex flex-col items-center justify-center p-4 bg-brand-50 dark:bg-brand-900/10 rounded-xl">
                 <ClipLoader color="#3b82f6" size={30} />
-                <p className="text-sm font-medium text-brand-700 dark:text-brand-400 mt-3 text-center">
-                  Extracting text, running OCR, and generating embeddings...
-                </p>
+                {uploadStage === 1 && (
+                  <p className="text-sm font-medium text-brand-700 dark:text-brand-400 mt-3 text-center">
+                    Extracting text, running OCR, and generating embeddings...
+                  </p>
+                )}
+                {uploadStage === 2 && (
+                  <p className="text-sm font-medium text-brand-700 dark:text-brand-400 mt-3 text-center">
+                    Your document is being processed. Please wait, as documents with many pages require additional processing time.
+                  </p>
+                )}
+                {uploadStage === 3 && (
+                  <p className="text-sm font-medium text-brand-700 dark:text-brand-400 mt-3 text-center">
+                    Your PDF contains scanned pages. We're applying Optical Character Recognition (OCR) to extract the text. Please wait a moment.
+                  </p>
+                )}
               </div>
             )}
           </div>

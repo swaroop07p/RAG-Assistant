@@ -47,29 +47,57 @@ export const Navbar = ({ onToggleSidebar, isSidebarOpen }) => {
   const notifRef = useRef(null);
   const themeRef = useRef(null);
 
+  // Helper to get active user's storage key safely matching notifications.js
+  const getUserStorageKey = () => {
+    let activeUserId = user?.id || user?._id || user?.email;
+    
+    if (!activeUserId) {
+      try {
+        const token = localStorage.getItem('token');
+        if (token) {
+          const base64Url = token.split('.')[1];
+          const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+          const jsonPayload = decodeURIComponent(atob(base64).split('').map(c => {
+            return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+          }).join(''));
+          const payload = JSON.parse(jsonPayload);
+          activeUserId = payload?.sub || payload?.id;
+        }
+      } catch (e) {
+        // Fallback silently
+      }
+    }
+    
+    return activeUserId ? `rag_notifications_${activeUserId}` : 'rag_notifications_guest';
+  };
+
   // Load Notifications & Clear Items Older Than 48 Hours
   const loadNotifications = () => {
-    const stored = JSON.parse(
-      localStorage.getItem("rag_notifications") || "[]",
-    );
+    const storageKey = getUserStorageKey();
+    const stored = JSON.parse(localStorage.getItem(storageKey) || '[]');
     const fortyEightHours = 48 * 60 * 60 * 1000;
     const now = Date.now();
-
-    const validNotifs = stored.filter(
-      (n) => now - n.timestamp < fortyEightHours,
-    );
+    
+    const validNotifs = stored.filter(n => (now - n.timestamp) < fortyEightHours);
     if (validNotifs.length !== stored.length) {
-      localStorage.setItem("rag_notifications", JSON.stringify(validNotifs));
+      localStorage.setItem(storageKey, JSON.stringify(validNotifs));
     }
-    setNotifications(validNotifs);
+    // Force a fresh array reference [...] to ensure React re-renders
+    setNotifications([...validNotifs]);
   };
 
   useEffect(() => {
     loadNotifications();
-    window.addEventListener("rag_notification_update", loadNotifications);
-    return () =>
-      window.removeEventListener("rag_notification_update", loadNotifications);
-  }, []);
+    
+    // Listen to both custom dispatch events and standard storage events
+    window.addEventListener('rag_notification_update', loadNotifications);
+    window.addEventListener('storage', loadNotifications);
+    
+    return () => {
+      window.removeEventListener('rag_notification_update', loadNotifications);
+      window.removeEventListener('storage', loadNotifications);
+    };
+  }, [user]); // Re-run when user changes!
 
   // Fetch Documents and Chats for Quick Search
   useEffect(() => {
@@ -119,26 +147,29 @@ export const Navbar = ({ onToggleSidebar, isSidebarOpen }) => {
   }, []);
 
   const markAllAsRead = () => {
-    const updated = notifications.map((n) => ({ ...n, read: true }));
+    const storageKey = getUserStorageKey();
+    const updated = notifications.map(n => ({ ...n, read: true }));
     setNotifications(updated);
-    localStorage.setItem("rag_notifications", JSON.stringify(updated));
+    localStorage.setItem(storageKey, JSON.stringify(updated));
   };
 
   const deleteNotification = (id) => {
-    const updated = notifications.filter((n) => n.id !== id);
+    const storageKey = getUserStorageKey();
+    const updated = notifications.filter(n => n.id !== id);
     setNotifications(updated);
-    localStorage.setItem("rag_notifications", JSON.stringify(updated));
+    localStorage.setItem(storageKey, JSON.stringify(updated));
   };
 
   const clearAllNotifications = () => {
+    const storageKey = getUserStorageKey();
     setNotifications([]);
-    localStorage.setItem("rag_notifications", JSON.stringify([]));
+    localStorage.setItem(storageKey, JSON.stringify([]));
   };
 
   const unreadCount = notifications.filter((n) => !n.read).length;
 
   return (
-    <header className="sticky top-0 z-30 h-16 bg-white/80 dark:bg-darkCard/80 backdrop-blur-md border-b border-slate-200 dark:border-darkBorder px-2 sm:px-6 flex items-center justify-between transition-colors gap-2">
+    <header className="fixed top-0 inset-x-0 z-30 h-16 bg-white/80 dark:bg-darkCard/80 backdrop-blur-md border-b border-slate-200 dark:border-darkBorder px-2 sm:px-6 flex items-center justify-between transition-colors gap-2">
       {/* Left section: Mobile Sidebar Toggle & Interactive Search */}
       <div className="flex items-center gap-2 flex-1 max-w-md">
         <button
@@ -148,7 +179,7 @@ export const Navbar = ({ onToggleSidebar, isSidebarOpen }) => {
           {isSidebarOpen ? <X size={20} /> : <Menu size={20} />}
         </button>
 
-        {/* Quick Search Field - Visible on all screen sizes now */}
+        {/* Quick Search Field */}
         <div className="relative w-full" ref={searchRef}>
           <Search
             className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"
@@ -163,7 +194,7 @@ export const Navbar = ({ onToggleSidebar, isSidebarOpen }) => {
               setIsSearchOpen(true);
             }}
             onFocus={() => setIsSearchOpen(true)}
-            className="w-full pl-9 pr-4 py-1.5 text-xs sm:text-sm bg-slate-100 dark:bg-slate-800 border border-transparent focus:border-brand-500 rounded-full outline-none text-slate-800 dark:text-slate-200 transition"
+            className="w-full pl-9 pr-4 py-1.5 text-xs sm:text-sm bg-slate-100 dark:bg-slate-800 border border-transparent focus:border-brand-500 rounded-full outline-none text-slate-800 dark:text-slate-200 transition md:ml-65"
           />
 
           {/* Quick Search Dropdown */}
@@ -242,7 +273,7 @@ export const Navbar = ({ onToggleSidebar, isSidebarOpen }) => {
 
       {/* Right section: Theme Selector Dropdown, Notifications & User Avatar */}
       <div className="flex items-center gap-1.5 sm:gap-3 shrink-0">
-        {/* Theme Selector Dropdown (Unified Single Button) */}
+        {/* Theme Selector Dropdown */}
         <div className="relative" ref={themeRef}>
           <button
             onClick={() => setShowThemeMenu(!showThemeMenu)}

@@ -53,13 +53,13 @@ export const AuthProvider = ({ children }) => {
       password
     });
     toast.success('Registration successful! Please login.');
-    addNotification('Good Bye!', 'You have successfully logged out.');
   };
 
   const logout = () => {
     localStorage.removeItem('token');
     setUser(null);
     toast.success('Logged out successfully');
+    addNotification('Good Bye!', 'You have successfully logged out.');
   };
 
   return (

@@ -113,7 +113,7 @@ export const Analytics = () => {
   return (
     <div className="space-y-6 max-w-7xl mx-auto">
       <div>
-        <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-100">System Analytics</h1>
+        <h1 className="text-2xl font-bold bg-gradient-to-r from-brand-600 to-indigo-500 bg-clip-text text-transparent">System Analytics</h1>
         <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">Monitor your RAG engine's performance and usage metrics.</p>
       </div>
 

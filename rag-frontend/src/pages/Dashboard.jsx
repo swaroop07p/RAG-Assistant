@@ -91,10 +91,10 @@ export const Dashboard = () => {
       {/* Welcome Section */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2 ">
+          <h1 className="text-2xl font-bold  flex items-center gap-2 ">
              {" "}
             <span>
-              Welcome back, {user?.full_name?.split(" ")[0] || "User"}!
+              <span className="bg-gradient-to-r from-brand-600 to-indigo-500 bg-clip-text text-transparent">Welcome back,</span>  {user?.full_name?.split(" ")[0] || "User"}!
             </span>
              {" "}
             <FileBox

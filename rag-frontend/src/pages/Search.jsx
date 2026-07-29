@@ -63,7 +63,7 @@ export const Search = () => {
   return (
     <div className="max-w-5xl mx-auto space-y-6">
       <div className="text-center py-8">
-        <h1 className="text-3xl font-extrabold text-slate-900 dark:text-slate-100 tracking-tight">Deep Document Search</h1>
+        <h1 className="text-3xl font-extrabold bg-gradient-to-r from-brand-600 to-indigo-500 bg-clip-text text-transparent tracking-tight">Deep Document Search</h1>
         <p className="text-sm text-slate-500 dark:text-slate-400 mt-2">Find exactly what you're looking for across your entire knowledge base.</p>
       </div>
 
@@ -77,7 +77,7 @@ export const Search = () => {
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               placeholder="Search concepts, keywords, or extract data..."
-              className="w-full pl-11 pr-4 py-3.5 bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 focus:border-brand-500 rounded-xl outline-none text-slate-900 dark:text-slate-100 transition shadow-inner"
+              className="w-full pl-11 pr-4 py-3.5 bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 focus:border-brand-500 rounded-xl outline-none text-slate-900 dark:text-slate-100 transition shadow-inner placeholder:text-sm md:placeholder:text-base"
             />
           </div>
           

@@ -10,7 +10,7 @@ export const Settings = () => {
   return (
     <div className="max-w-4xl mx-auto space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-100">Settings</h1>
+        <h1 className="text-2xl font-bold bg-gradient-to-r from-brand-600 to-indigo-500 bg-clip-text text-transparent">Settings</h1>
         <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">Manage your account preferences and application layout.</p>
       </div>
 

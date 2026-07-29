@@ -96,8 +96,6 @@ export const Chat = () => {
   const createNewChat = () => {
     setCurrentSessionId(null);
     setMessages([]);
-
-    addNotification("New Chat", "Started a new RAG session.");
     if (window.innerWidth < 768) setIsHistoryOpen(false);
   };
 
@@ -112,6 +110,7 @@ export const Chat = () => {
         setMessages([]);
       }
       toast.success("Chat deleted");
+      addNotification("Chat Deleted", "RAG chat session was deleted.");
     } catch (error) {
       toast.error("Failed to delete chat");
     }
@@ -184,7 +183,7 @@ export const Chat = () => {
   };
 
   return (
-    <div className="flex md:h-[calc(100vh-8rem)] h-[calc(100vh-7rem)] bg-white dark:bg-darkCard rounded-2xl border border-slate-200 dark:border-darkBorder overflow-hidden shadow-sm">
+    <div className="flex h-[calc(100vh-8rem)] bg-white dark:bg-darkCard rounded-2xl border border-slate-200 dark:border-darkBorder overflow-hidden shadow-sm">
       {/* Sidebar: Chat History */}
       <AnimatePresence initial={false}>
         {isHistoryOpen && (
@@ -202,7 +201,7 @@ export const Chat = () => {
               initial={{ width: 0, opacity: 0 }}
               animate={{ width: 280, opacity: 1 }}
               exit={{ width: 0, opacity: 0 }}
-              className="absolute md:relative z-30 md:h-full h-[84vh] border-r rounded-xl border-slate-200 dark:border-darkBorder bg-slate-100 dark:bg-slate-900 flex flex-col shrink-0 overflow-hidden shadow-xl md:shadow-none"
+              className="absolute md:relative z-30 md:h-full h-[79vh] border-r rounded-xl border-slate-200 dark:border-darkBorder bg-slate-100 dark:bg-slate-900 flex flex-col shrink-0 overflow-hidden shadow-xl md:shadow-none"
             >
               <div className="p-4 border-b border-slate-200 dark:border-darkBorder">
                 <button
