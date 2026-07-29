@@ -74,7 +74,7 @@ export const Sidebar = ({ isOpen, onClose }) => {
         </div>
 
         {/* Bottom Banner */}
-        <div className="p-4 m-4  my-10 rounded-2xl bg-gradient-to-br from-indigo-900 via-brand-900 to-slate-900 text-white text-xs relative overflow-hidden">
+        <div className="p-4 m-4  md:my-10 my-20 rounded-2xl bg-gradient-to-br from-indigo-900 via-brand-900 to-slate-900 text-white text-xs relative overflow-hidden">
           <Sparkles className="absolute right-2 bottom-2 text-brand-400 opacity-20" size={60} />
           <p className="font-semibold text-brand-300 flex items-center gap-1 mb-1">
             <Sparkles size={15} /> Gemini 3.6 Flash
