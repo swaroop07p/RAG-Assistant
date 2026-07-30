@@ -34,24 +34,29 @@ DocuMind AI is a production-ready, full-stack Retrieval-Augmented Generation (RA
 
 ## 🏗️ System Architecture & Pipeline
 
-```text
-User Question 
-     ↓
-Generate Query Embedding (gemini-embedding-001)
-     ↓
-Hybrid Search (Qdrant Vector DB + MongoDB Keyword)
-     ↓
-Fetch Top 10 Best Chunks 
-     ↓
-Fetch Neighbor Chunks (Prev + Next from MongoDB)
-     ↓
-Merge Contiguous Context & Enforce Token Budget
-     ↓
-LLM Evaluation (gemini-1.5-flash)
-     ↓
-[If Context Insufficient] → Retrieve Top 20 → Retry LLM
-     ↓
-Deliver Final Answer + Citations + Follow-Ups
+```mermaid
+flowchart TD
+    A[👤 User Question] --> B[🔢 Generate Query Embedding\n<small>gemini-embedding-001</small>]
+    B --> C[🔍 Hybrid Search\n<small>Qdrant Vector DB + MongoDB Keyword</small>]
+    C --> D[📑 Fetch Top 10 Best Chunks]
+    D --> E[🔗 Fetch Neighbor Chunks\n<small>Prev + Next from MongoDB</small>]
+    E --> F[⚡ Merge Contiguous Context & Enforce Token Budget]
+    F --> G[🧠 LLM Evaluation\n<small>gemini-1.5-flash</small>]
+    
+    G -->|Context Insufficient| H[🔄 Retrieve Top 20 & Retry]
+    H --> G
+    
+    G -->|Sufficient Context| I[🎯 Final Answer + Citations + Follow-Ups]
+
+    classDef primary fill:#2563eb,stroke:#1d4ed8,color:#fff,font-weight:bold;
+    classDef step fill:#1e293b,stroke:#475569,color:#f8fafc;
+    classDef decision fill:#7c3aed,stroke:#6d28d9,color:#fff;
+    classDef endNode fill:#16a34a,stroke:#15803d,color:#fff;
+
+    class A primary;
+    class B,C,D,E,F step;
+    class G,H decision;
+    class I endNode;
 ```
 
 ---
@@ -181,6 +186,131 @@ npm run dev
 
 ---
 
+# 📂 Project Structure
+
+```text
+RAG-Assistant/
+│
+├── .github/
+│   └── workflows/
+│       └── keep_alive.yml          # GitHub Action to keep Render backend alive
+│
+├── rag-backend/
+│   ├── app/
+│   │   ├── api/
+│   │   │   ├── deps.py
+│   │   │   └── v1/
+│   │   │       ├── auth.py
+│   │   │       ├── chat.py
+│   │   │       ├── documents.py
+│   │   │       ├── search.py
+│   │   │       └── summary.py
+│   │   │
+│   │   ├── core/
+│   │   │   ├── config.py
+│   │   │   ├── exceptions.py
+│   │   │   ├── logging.py
+│   │   │   └── security.py
+│   │   │
+│   │   ├── db/
+│   │   │   ├── mongodb.py
+│   │   │   └── qdrant.py
+│   │   │
+│   │   ├── schemas/
+│   │   │   ├── chat.py
+│   │   │   ├── document.py
+│   │   │   ├── search.py
+│   │   │   └── user.py
+│   │   │
+│   │   ├── services/
+│   │   │   ├── auth_service.py
+│   │   │   ├── pdf_service.py
+│   │   │   ├── rag_service.py
+│   │   │   ├── storage_service.py
+│   │   │   ├── summary_service.py
+│   │   │   └── vector_service.py
+│   │   │
+│   │   ├── main.py
+│   │   └── __init__.py
+│   │
+│   ├── Dockerfile
+│   ├── requirements.txt
+│   └── README.md
+│
+├── rag-frontend/
+│   ├── public/
+│   │   └── Blue_Bot.svg
+│   │   
+│   │
+│   ├── src/
+│   │   ├── api/
+│   │   │   └── axios.js
+│   │   │
+│   │   ├── components/
+│   │   │   ├── chat/
+│   │   │   ├── document/
+│   │   │   └── layout/
+│   │   │
+│   │   ├── context/
+│   │   │   ├── AuthContext.jsx
+│   │   │   └── ThemeContext.jsx
+│   │   │
+│   │   ├── pages/
+│   │   │   ├── auth/
+│   │   │   ├── Analytics.jsx
+│   │   │   ├── Chat.jsx
+│   │   │   ├── Dashboard.jsx
+│   │   │   ├── Documents.jsx
+│   │   │   ├── Search.jsx
+│   │   │   ├── Settings.jsx
+│   │   │   └── NotFound.jsx
+│   │   │
+│   │   ├── routes/
+│   │   │   ├── AppRoutes.jsx
+│   │   │   └── ProtectedRoute.jsx
+│   │   │
+│   │   ├── utils/
+│   │   │   └── notifications.js
+│   │   │
+│   │   ├── App.jsx
+│   │   ├── main.jsx
+│   │   └── index.css
+│   │
+│   ├── package.json
+│   ├── vite.config.js
+│   └── vercel.json
+│
+└── README.md
+```
+
+---
+
+# 🌐 API Endpoints
+
+| Method | Endpoint | Description |
+|---------|----------|-------------|
+| POST | `/api/v1/auth/login` | User Login |
+| POST | `/api/v1/auth/register` | User Registration |
+| POST | `/api/v1/documents/upload` | Upload PDF |
+| GET | `/api/v1/documents` | Fetch Documents |
+| POST | `/api/v1/chat` | Ask Questions |
+| POST | `/api/v1/search` | Search Documents |
+| POST | `/api/v1/summary` | Generate Document Summary |
+
+---
+
+# 🔒 Authentication
+
+The backend uses **JWT (JSON Web Tokens)** for authentication.
+
+Protected API endpoints require:
+
+Authorization: Bearer <JWT_TOKEN>
+
+Users must authenticate before accessing chat history, document uploads, or AI-powered features.
+
+---
+
 # ☁️ Deployment
 
 ### Frontend
@@ -192,7 +322,4 @@ npm run dev
 - Deployed as a **Render Web Service**
 
 ### Always-On Backend
-A GitHub Actions workflow (`keep_alive.yml`) runs every **14 minutes** to ping the Render `/health` endpoint, ensuring the backend remains active and does not spin down due to inactivity.
-
----
-```
+A GitHub Actions workflow (`keep_alive.yml`) runs every **10 minutes** to ping the Render `/health` endpoint, ensuring the backend remains active and does not spin down due to inactivity.
