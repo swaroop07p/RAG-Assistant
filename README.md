@@ -41,7 +41,7 @@ flowchart TD
     C --> D[📑 Fetch Top 10 Best Chunks]
     D --> E[🔗 Fetch Neighbor Chunks\n<small>Prev + Next from MongoDB</small>]
     E --> F[⚡ Merge Contiguous Context & Enforce Token Budget]
-    F --> G[🧠 LLM Evaluation\n<small>gemini-1.5-flash</small>]
+    F --> G[🧠 LLM Evaluation\n<small>gemini-3.6-flash</small>]
     
     G -->|Context Insufficient| H[🔄 Retrieve Top 20 & Retry]
     H --> G
@@ -175,7 +175,7 @@ npm install
 ### Create a `.env` file inside the `frontend` directory
 
 ```env
-VITE_API_BASE_URL=http://localhost:8000/api/v1
+VITE_API_BASE_URL=http://localhost:8000/api/v1 || Your_Backend_Deployment_Link/api/v1
 ```
 
 ### Run the Frontend Development Server
