@@ -33,7 +33,11 @@ export const Chat = () => {
 
   // UI State
   const [isHistoryOpen, setIsHistoryOpen] = useState(true);
-  const messagesEndRef = useRef(null);
+
+
+  // Add this near your other state/refs
+  const chatContainerRef = useRef(null);
+  const messagesEndRef = useRef(null); // You can optionally remove this one now
 
   useEffect(() => {
     fetchSessions();
@@ -53,7 +57,12 @@ export const Chat = () => {
   }, [messages, isGenerating]);
 
   const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    if (chatContainerRef.current) {
+      chatContainerRef.current.scrollTo({
+        top: chatContainerRef.current.scrollHeight,
+        behavior: "smooth",
+      });
+    }
   };
 
   const fetchSessions = async () => {
@@ -183,7 +192,7 @@ export const Chat = () => {
   };
 
   return (
-    <div className="flex md:h-[calc(100vh-8rem)] h-[calc(100vh-10rem)] bg-white dark:bg-darkCard rounded-2xl border border-slate-200 dark:border-darkBorder overflow-hidden shadow-sm">
+    <div className="flex md:h-[calc(100vh-8rem)] h-[calc(100dvh-10rem)] bg-white dark:bg-darkCard rounded-2xl border border-slate-200 dark:border-darkBorder overflow-hidden shadow-sm">
       {/* Sidebar: Chat History */}
       <AnimatePresence initial={false}>
         {isHistoryOpen && (
@@ -284,7 +293,7 @@ export const Chat = () => {
         </div>
 
         {/* Messages List */}
-        <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-6">
+        <div ref={chatContainerRef} className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-6">
           {messages.length === 0 ? (
             <div className="h-full flex flex-col items-center justify-center text-center max-w-md mx-auto">
               <div className="w-16 h-16 bg-brand-50 dark:bg-brand-900/20 rounded-2xl flex items-center justify-center text-brand-600 dark:text-brand-400 mb-6 border border-brand-100 dark:border-brand-900/50 shadow-sm">
