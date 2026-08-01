@@ -397,7 +397,8 @@ export const Navbar = ({ onToggleSidebar, isSidebarOpen }) => {
                             e.stopPropagation();
                             deleteNotification(notif.id);
                           }}
-                          className="absolute right-2 top-2 p-1 text-slate-400 hover:text-rose-500 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-md opacity-0 group-hover:opacity-100 transition"
+                          className="absolute right-2 top-2 p-1 text-slate-400 hover:text-rose-500 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-md  transition"
+                          // opacity-0 group-hover:opacity-100
                         >
                           <Trash2 size={13} />
                         </button>

@@ -13,6 +13,7 @@ import { PDFViewerModal } from "../components/document/PDFViewerModal";
 import API from "../api/axios";
 import toast from "react-hot-toast";
 import { SummaryModal } from "../components/document/SummaryModal";
+import { addNotification } from "../utils/notifications";
 
 export const Documents = () => {
   const [documents, setDocuments] = useState([]);
